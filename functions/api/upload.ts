@@ -40,7 +40,19 @@ function normalizeFolder(raw: string | null): string | Response {
 }
 
 function sanitizeFileName(name: string) {
-  const cleaned = name.replace(/\\/g, "/").split("/").pop() || "";
+  // CLI 可能对 X-File-Name 做百分号编码（Node fetch ByteString）。仅当
+  // encodeURIComponent(decoded) === name 时才接受 decode，字面量 "%2e" 保持原样；
+  // 原始 UTF-8（curl）不变。非法 % 序列 → 保留原文。
+  let decoded = name;
+  try {
+    const once = decodeURIComponent(name);
+    if (encodeURIComponent(once) === name) {
+      decoded = once;
+    }
+  } catch {
+    decoded = name;
+  }
+  const cleaned = decoded.replace(/\\/g, "/").split("/").pop() || "";
   return cleaned.replace(/[\u0000-\u001f]/g, "").trim();
 }
 
