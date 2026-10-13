@@ -3,6 +3,7 @@ pages_build_output_dir = "build"
 compatibility_date = "2024-06-20"
 
 [vars]
+WEBDAV_USERNAME = "admin"
 WEBDAV_PUBLIC_READ = "0"
 # SITES_HOST is set as a Cloudflare Pages environment variable in the dashboard
 # (production/preview), NOT hard-coded here, so a deploy cannot override it.
@@ -10,4 +11,4 @@ WEBDAV_PUBLIC_READ = "0"
 
 [[r2_buckets]]
 binding = "BUCKET"
-bucket_name = "webdav"
+bucket_name = "rainafter"
