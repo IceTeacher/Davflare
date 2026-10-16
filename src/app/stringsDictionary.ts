@@ -177,8 +177,8 @@ const entries: Record<string, DictionaryEntry> = {
   imagesSection: { zh: "图床", en: "Images" },
   imagesTitle: { zh: "图床", en: "Image host" },
   imagesHint: {
-    zh: "拖放图片上传。公开地址只在站点域名：https://<SITES_HOST>/i/{id}",
-    en: "Drop images to upload. Public URLs live only on the sites host: https://<SITES_HOST>/i/{id}",
+    zh: "拖放或 Ctrl/Cmd+V 粘贴截图上传。公开地址只在站点域名：https://<SITES_HOST>/i/{id}",
+    en: "Drop or Ctrl/Cmd+V paste a screenshot to upload. Public URLs live only on the sites host: https://<SITES_HOST>/i/{id}",
   },
   imagesHostMissing: { zh: "未配置 SITES_HOST，公开地址打不开", en: "SITES_HOST is not set — public URLs will not open" },
   imagesHostMissingHint: {
@@ -186,7 +186,7 @@ const entries: Record<string, DictionaryEntry> = {
     en: "Bind a custom domain to this Pages project AND set the Pages env SITES_HOST (hostname only, no https://), then redeploy. Until then public image URLs will not open.",
   },
   emptyImages: { zh: "还没有图片", en: "No images yet" },
-  emptyImagesHint: { zh: "把图片拖到这里，或点击上传", en: "Drop an image here, or click upload" },
+  emptyImagesHint: { zh: "把图片拖到这里、粘贴截图，或点击上传", en: "Drop an image, paste a screenshot, or click upload" },
   uploadImages: { zh: "上传图片", en: "Upload images" },
   copyImageUrl: { zh: "复制链接", en: "Copy URL" },
   copyImageMarkdown: { zh: "复制 Markdown", en: "Copy Markdown" },
@@ -200,6 +200,22 @@ const entries: Record<string, DictionaryEntry> = {
   notAnImage: { zh: "只能上传图片文件", en: "Only image files can be uploaded" },
   imageUrlCopied: { zh: "链接已复制", en: "URL copied" },
   imageMarkdownCopied: { zh: "Markdown 已复制", en: "Markdown copied" },
+  pasteImageHostUploaded: {
+    zh: "已上传到图床：{name}",
+    en: "Uploaded to image host: {name}",
+  },
+  pasteImageHostUploadedCopied: {
+    zh: "已上传到图床，链接已复制：{name}",
+    en: "Uploaded to image host — URL copied: {name}",
+  },
+  pasteImageHostUploadedNoUrl: {
+    zh: "已上传到图床：{name}（未配置 SITES_HOST，暂无公开链接）",
+    en: "Uploaded to image host: {name} (SITES_HOST unset — no public URL yet)",
+  },
+  pasteImageHostHint: {
+    zh: "文件管理器或本页也可 Ctrl/Cmd+V 粘贴截图：两秒拿到 CDN 链（复用 POST /api/images，不新增接口）。",
+    en: "In the file manager or here, Ctrl/Cmd+V a screenshot to get a CDN URL in seconds (reuses POST /api/images — no new API).",
+  },
   mcpRequiresApiKey: {
     zh: "MCP 依赖 API Key 开关：若 API Key 关闭，即使 MCP 开关打开，/mcp 也是 404。",
     en: "MCP depends on the API Key switch: if Key is off, /mcp is 404 even if MCP is on.",
@@ -272,8 +288,8 @@ const entries: Record<string, DictionaryEntry> = {
     en: "Image host clients (PicGo / ShareX / Typora)",
   },
   imageHostExportHint: {
-    zh: "复用现有 POST /api/images 与 API Key，不新增接口。公开地址来自响应里的 https://<SITES_HOST>/i/{id}。",
-    en: "Reuses existing POST /api/images and API keys — no new APIs. Public URL comes from the response as https://<SITES_HOST>/i/{id}.",
+    zh: "复用现有 POST /api/images 与 API Key，不新增接口。公开地址来自响应里的 https://<SITES_HOST>/i/{id}。也可在本页或文件管理器 Ctrl/Cmd+V 粘贴截图，两秒拿 CDN 链。",
+    en: "Reuses existing POST /api/images and API keys — no new APIs. Public URL comes from the response as https://<SITES_HOST>/i/{id}. Or Ctrl/Cmd+V a screenshot here or in the file manager for a CDN URL in seconds.",
   },
   imageHostExportKeyHint: {
     zh: "导出内容用占位符 {placeholder}，导入前换成网页端创建的 fd_… 密钥。",
@@ -810,6 +826,68 @@ const entries: Record<string, DictionaryEntry> = {
   publishAlbumDone: { zh: "相册已发布（{count} 张）", en: "Album published ({count} image(s))" },
   publishAlbumPublishing: { zh: "正在发布…", en: "Publishing…" },
   publishAlbumFailed: { zh: "发布相册失败", en: "Failed to publish album" },
+  // —— 播客 / RSS ——
+  sitePodcastHeading: { zh: "播客", en: "Podcast" },
+  sitePodcastEmpty: { zh: "还没有节目", en: "No episodes yet" },
+  sitePodcastCount: { zh: "{count} 集", en: "{count} episode(s)" },
+  sitePodcastFeedLink: { zh: "RSS 订阅", en: "RSS feed" },
+  sitePodcastFeedHint: {
+    zh: "把 feed.xml 地址加到播客客户端即可收听",
+    en: "Add the feed.xml URL in a podcast app to subscribe",
+  },
+  sitePodcastDescription: {
+    zh: "{title} — 由 Davflare 发布",
+    en: "{title} — published with Davflare",
+  },
+  siteKindPodcast: { zh: "播客", en: "podcast" },
+  publishAsPodcast: { zh: "发布为播客 / RSS", en: "Publish as podcast / RSS" },
+  publishPodcastTitle: { zh: "发布为播客 / RSS", en: "Publish as podcast / RSS" },
+  publishPodcastLoading: { zh: "正在读取文件夹…", en: "Reading folder…" },
+  publishPodcastLoadFailed: { zh: "读取文件夹失败", en: "Failed to read the folder" },
+  publishPodcastSummary: {
+    zh: "当前层 {count} 个音视频，共 {size}。将复制到 sites/{slug}/，生成 feed.xml（RSS 2.0）与列表播放页。",
+    en: "{count} top-level audio/video file(s), {size} total. Copied into sites/{slug}/ with feed.xml (RSS 2.0) and a list player page.",
+  },
+  publishPodcastIgnored: {
+    zh: "已忽略 {count} 个非音视频文件。",
+    en: "Ignored {count} non-media file(s).",
+  },
+  publishPodcastSubdirs: {
+    zh: "子文件夹不会发布（{count} 个）。",
+    en: "Subfolders are not published ({count}).",
+  },
+  publishPodcastHint: {
+    zh: "与相册 / 文档站 / 公开目录 / 导航站不同：面向播客客户端，enclosure 直链 SITES_HOST 上的媒体。发布的是副本；更新请重新发布。",
+    en: "Unlike album / docs / public directory / nav sites: built for podcast apps, with enclosures pointing at media on SITES_HOST. Published files are copies — republish to update.",
+  },
+  publishPodcastSlugHint: {
+    zh: "公开地址：https://<SITES_HOST>/{slug}/feed.xml",
+    en: "Public URL: https://<SITES_HOST>/{slug}/feed.xml",
+  },
+  publishPodcastNoMedia: {
+    zh: "这个文件夹当前层没有音视频，无法发布播客。",
+    en: "This folder has no top-level audio/video files. Cannot publish a podcast.",
+  },
+  publishPodcastTooMany: {
+    zh: "音视频 {count} 个，超过上限 {max} 集，未发布。",
+    en: "{count} media files exceed the limit of {max} episodes. Nothing was published.",
+  },
+  publishPodcastTooLarge: {
+    zh: "音视频共 {size}，超过上限 {max}，未发布。",
+    en: "Media total {size}, over the {max} limit. Nothing was published.",
+  },
+  publishPodcastDone: {
+    zh: "播客已发布（{count} 集）",
+    en: "Podcast published ({count} episode(s))",
+  },
+  publishPodcastDoneCopied: {
+    zh: "播客已发布（{count} 集），feed 链接已复制",
+    en: "Podcast published ({count} episode(s)) — feed URL copied",
+  },
+  publishPodcastFailed: { zh: "发布播客失败", en: "Failed to publish podcast" },
+  publishPodcastFeedUrl: { zh: "RSS 地址", en: "RSS feed URL" },
+  publishPodcastCopyFeed: { zh: "复制 feed 地址", en: "Copy feed URL" },
+  publishPodcastOpenPage: { zh: "打开播放页", en: "Open player page" },
   // —— 公开目录（站点页 + 网盘对话框）——
   siteDirCount: { zh: "{count} 个文件 · 共 {size}", en: "{count} file(s) · {size} total" },
   siteDirName: { zh: "文件名", en: "Name" },
